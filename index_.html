@@ -87,12 +87,8 @@ map.on('load', () => {
     row.innerHTML = `<input type="checkbox" checked data-index="${i}"> ${name}`;
     row.querySelector('input').addEventListener('change', e => {
       const visible = e.target.checked ? 'visible' : 'none';
-      const idx = String(i+1).padStart(3,'0');
-      map.setLayoutProperty(`fill-${idx}`, 'visibility', visible);
-      map.setLayoutProperty(`line-${idx}`, 'visibility', visible);
-      for (let g = 1; g <= 4; g++) {
-        map.setLayoutProperty(`glow-${idx}-${g}`, 'visibility', visible);
-      }
+      map.setLayoutProperty(`fill-${String(i+1).padStart(3,'0')}`, 'visibility', visible);
+      map.setLayoutProperty(`line-${String(i+1).padStart(3,'0')}`, 'visibility', visible);
     });
     container.appendChild(row);
   });
@@ -101,12 +97,8 @@ map.on('load', () => {
     const visible = e.target.checked ? 'visible' : 'none';
     document.querySelectorAll('#districts input').forEach(x => x.checked = e.target.checked);
     districts.forEach((_, i) => {
-      const idx = String(i+1).padStart(3,'0');
-      map.setLayoutProperty(`fill-${idx}`, 'visibility', visible);
-      map.setLayoutProperty(`line-${idx}`, 'visibility', visible);
-      for (let g = 1; g <= 4; g++) {
-        map.setLayoutProperty(`glow-${idx}-${g}`, 'visibility', visible);
-      }
+      map.setLayoutProperty(`fill-${String(i+1).padStart(3,'0')}`, 'visibility', visible);
+      map.setLayoutProperty(`line-${String(i+1).padStart(3,'0')}`, 'visibility', visible);
     });
   });
 
