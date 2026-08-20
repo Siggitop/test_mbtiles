@@ -14,7 +14,7 @@
     "osm-basemap": {
       "type": "raster",
       "tiles": [
-        "https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+        "https://api.maptiler.com/maps/STYLE-ID/{z}/{x}/{y}.png?key=425c9da4625842099770b82e025295e3_f034ee3acec596a345024de96e8c878ceab9046e8f0f35fb97eff8ebf38c9bd8"
       ],
       "tileSize": 256,
       "minzoom": 0,
