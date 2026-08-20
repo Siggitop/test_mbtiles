@@ -2,101 +2,43 @@
 <html lang="de">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#ffffff">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Wahlbezirke Achim</title>
 <link href="https://unpkg.com/maplibre-gl@5.13.0/dist/maplibre-gl.css" rel="stylesheet">
 <style>
-* { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-html,body {
-  margin:0; width:100%;
-  height:100vh; height:100dvh;
-  overscroll-behavior:none;
-}
-#map { position:absolute; inset:0; width:100%; height:100%; }
+* { box-sizing:border-box; }
+html,body,#map { margin:0; width:100%; height:100%; }
 body { font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
-
-/* Toggle-Button fuer die Bezirksliste */
-#panelToggle {
-  position:absolute; z-index:6;
-  top:calc(12px + env(safe-area-inset-top));
-  left:calc(12px + env(safe-area-inset-left));
-  width:44px; height:44px; border:none; border-radius:10px;
-  background:rgba(255,255,255,.96); box-shadow:0 4px 18px rgba(0,0,0,.18);
-  font-size:20px; line-height:1; cursor:pointer;
-  display:flex; align-items:center; justify-content:center;
-}
-#panelToggle:active { background:rgba(240,240,240,.98); }
-
 #panel {
-  position:absolute; z-index:5;
-  top:calc(64px + env(safe-area-inset-top));
-  left:calc(12px + env(safe-area-inset-left));
-  width:280px; max-height:calc(100% - 88px);
-  overflow:auto; -webkit-overflow-scrolling:touch;
+  position:absolute; z-index:5; top:12px; left:12px; width:280px;
+  max-height:calc(100% - 24px); overflow:auto;
   background:rgba(255,255,255,.96); border-radius:12px;
   box-shadow:0 4px 18px rgba(0,0,0,.18); padding:14px;
-  transition:transform .2s ease, opacity .2s ease;
 }
-#panel.hidden { transform:translateY(-8px); opacity:0; pointer-events:none; }
-
 #panel h2 { margin:0 0 8px; font-size:18px; }
 #panel p { margin:0 0 10px; font-size:13px; color:#555; }
-
-.district {
-  display:flex; align-items:center; gap:10px;
-  padding:9px 4px; font-size:14px;
-  min-height:44px; border-radius:8px;
-}
-.district:active { background:rgba(0,0,0,.05); }
-.district input { margin:0; width:20px; height:20px; flex:none; }
-
+.district { display:flex; align-items:center; gap:8px; padding:3px 0; font-size:13px; }
+.district input { margin:0; }
 #loading {
   position:absolute; z-index:10; left:50%; top:50%;
   transform:translate(-50%,-50%); background:white;
   padding:12px 16px; border-radius:10px;
   box-shadow:0 4px 18px rgba(0,0,0,.2);
-  font-size:14px;
 }
-
-.maplibregl-popup { max-width:min(320px, calc(100vw - 32px)) !important; }
-.maplibregl-popup-content {
-  max-width:100%; padding:12px;
-  max-height:60vh; overflow:auto;
-}
+.maplibregl-popup-content { max-width:320px; }
 .attr { border-collapse:collapse; width:100%; font-size:12px; }
-.attr td { padding:5px 4px; border-bottom:1px solid #eee; vertical-align:top; }
+.attr td { padding:3px 4px; border-bottom:1px solid #eee; vertical-align:top; }
 .attr td:first-child { font-weight:600; width:42%; }
-
-.maplibregl-ctrl-top-right {
-  top:calc(0px + env(safe-area-inset-top));
-  right:calc(0px + env(safe-area-inset-right));
-}
-.maplibregl-ctrl-bottom-right {
-  bottom:calc(0px + env(safe-area-inset-bottom));
-  right:calc(0px + env(safe-area-inset-right));
-}
-
-/* Mobile: Panel als Bottom-Sheet, standardmaessig eingeklappt */
-@media (max-width:680px) {
-  #panel {
-    top:auto; left:0; right:0; bottom:0;
-    width:100%; max-height:50vh;
-    border-radius:16px 16px 0 0;
-    padding:12px 16px calc(14px + env(safe-area-inset-bottom));
-    transform:translateY(0);
-  }
-  #panel.hidden { transform:translateY(100%); opacity:1; }
+@media(max-width:600px) {
+  #panel { width:230px; max-height:55%; padding:10px; }
   #panel h2 { font-size:16px; }
-  .maplibregl-ctrl-group { transform:scale(.92); transform-origin:top right; }
 }
 </style>
 </head>
 <body>
 <div id="map"></div>
 <div id="loading">Karte wird geladen …</div>
-<button id="panelToggle" type="button" aria-label="Wahlbezirke ein-/ausblenden" aria-expanded="false">☰</button>
-<div id="panel" class="hidden">
+<div id="panel">
   <h2>Wahlbezirke Achim</h2>
   <p>Wahlbezirke ein- oder ausblenden.</p>
   <label class="district"><input id="all" type="checkbox" checked> Alle</label>
@@ -118,24 +60,10 @@ const map = new maplibregl.Map({
   style:'style.json',
   bounds:initialBounds,
   fitBoundsOptions:{padding:45},
-  attributionControl:true,
-  touchPitch:false
+  attributionControl:true
 });
-map.addControl(new maplibregl.NavigationControl({showCompass:false}), 'top-right');
-map.addControl(new maplibregl.ScaleControl({maxWidth:120, unit:'metric'}), 'bottom-right');
-
-// Panel-Toggle (Bezirksliste ein-/ausblenden)
-const panel = document.getElementById('panel');
-const panelToggle = document.getElementById('panelToggle');
-function setPanelOpen(open) {
-  panel.classList.toggle('hidden', !open);
-  panelToggle.setAttribute('aria-expanded', String(open));
-}
-panelToggle.addEventListener('click', () => {
-  setPanelOpen(panel.classList.contains('hidden'));
-});
-// Auf breiten Bildschirmen von Anfang an geoeffnet, auf schmalen eingeklappt
-setPanelOpen(window.innerWidth > 680);
+map.addControl(new maplibregl.NavigationControl(), 'top-right');
+map.addControl(new maplibregl.ScaleControl({maxWidth:120, unit:'metric'}));
 
 function fillPopup(feature) {
   const props = feature.properties || {};
@@ -153,12 +81,13 @@ map.on('load', () => {
 
   const container = document.getElementById('districts');
   districts.forEach((name, i) => {
-    const idx = String(i+1).padStart(3,'0');
+    const id = `district-${String(i+1).padStart(3,'0')}`;
     const row = document.createElement('label');
     row.className = 'district';
     row.innerHTML = `<input type="checkbox" checked data-index="${i}"> ${name}`;
     row.querySelector('input').addEventListener('change', e => {
       const visible = e.target.checked ? 'visible' : 'none';
+      const idx = String(i+1).padStart(3,'0');
       map.setLayoutProperty(`fill-${idx}`, 'visibility', visible);
       map.setLayoutProperty(`line-${idx}`, 'visibility', visible);
       for (let g = 1; g <= 4; g++) {
@@ -181,12 +110,12 @@ map.on('load', () => {
     });
   });
 
-  // Klick/Tap auf ein gerendertes Vektor-Feature.
+  // Click on any rendered vector feature.
   map.on('click', (e) => {
     const features = map.queryRenderedFeatures(e.point);
     if (!features.length) return;
     const feature = features[0];
-    new maplibregl.Popup({maxWidth:'none'}).setLngLat(e.lngLat).setHTML(fillPopup(feature)).addTo(map);
+    new maplibregl.Popup().setLngLat(e.lngLat).setHTML(fillPopup(feature)).addTo(map);
   });
 
   map.on('mousemove', e => {
