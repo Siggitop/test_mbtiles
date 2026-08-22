@@ -18,7 +18,7 @@
       "id": "glow-001-1",
       "type": "line",
       "source": "wahlbezirke",
-      "source-layer": "Wahlbezirk 001",
+      "source-layer": "Stadtgrenze",
       "minzoom": 8,
       "paint": {
         "line-color": "#e76f51",
